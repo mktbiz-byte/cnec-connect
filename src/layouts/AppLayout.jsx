@@ -17,6 +17,9 @@ import {
   UserCog,
   Bell,
   Activity,
+  Compass,
+  Send,
+  Users2,
 } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
 import NotificationBell from '@/components/ui/NotificationBell'
@@ -26,6 +29,7 @@ import { cn } from '@/lib/cn'
 const CREATOR_NAV = [
   { to: '/app/creator', label: '대시보드', icon: LayoutDashboard, end: true },
   { to: '/app/creator/campaigns', label: '캠페인 탐색', icon: Search },
+  { to: '/app/creator/proposals', label: '받은 제안', icon: Send },
   { to: '/app/creator/applications', label: '내 지원 현황', icon: Inbox },
   { to: '/app/creator/messages', label: '메시지', icon: MessageCircle },
   { to: '/app/creator/content', label: '콘텐츠 제출', icon: FileVideo },
@@ -47,6 +51,9 @@ const BUSINESS_NAV = [
 
 const ADMIN_NAV = [
   { to: '/app/admin', label: '대시보드', icon: LayoutDashboard, end: true },
+  { to: '/app/admin/discovery', label: 'Discovery 검색', icon: Compass },
+  { to: '/app/admin/groups', label: '크리에이터 그룹', icon: Users2 },
+  { to: '/app/admin/proposals', label: '제안 관리', icon: Send },
   { to: '/app/admin/users', label: '사용자 관리', icon: UserCog },
   { to: '/app/admin/campaigns', label: '캠페인 관리', icon: Megaphone },
   { to: '/app/admin/applications', label: '지원 관리', icon: Inbox },

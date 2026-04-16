@@ -13,6 +13,7 @@ import paymentsRoutes from './routes/payments.js'
 import contentRoutes from './routes/content.js'
 import notificationsRoutes from './routes/notifications.js'
 import adminRoutes from './routes/admin.js'
+import discoveryRoutes from './routes/discovery.js'
 
 const app = express()
 
@@ -47,6 +48,7 @@ app.use('/api/payments', paymentsRoutes)
 app.use('/api/content', contentRoutes)
 app.use('/api/notifications', notificationsRoutes)
 app.use('/api/admin', adminRoutes)
+app.use('/api/discovery', discoveryRoutes)
 
 app.use((err, _req, res, _next) => {
   console.error('[api] unhandled error:', err)
