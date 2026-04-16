@@ -128,13 +128,14 @@ router.post('/login', async (req, res, next) => {
   try {
     const body = loginSchema.parse(req.body)
     const { rows } = await query(
-      'SELECT id, email, password_hash, role FROM users WHERE email = $1',
+      'SELECT id, email, password_hash, role, suspended FROM users WHERE email = $1',
       [body.email.toLowerCase()],
     )
     if (rows.length === 0) return res.status(401).json({ error: 'INVALID_CREDENTIALS' })
     const user = rows[0]
     const ok = await verifyPassword(body.password, user.password_hash)
     if (!ok) return res.status(401).json({ error: 'INVALID_CREDENTIALS' })
+    if (user.suspended) return res.status(403).json({ error: 'SUSPENDED' })
     // admin 계정은 모든 로그인 페이지에서 입장 가능
     if (body.expectedRole && body.expectedRole !== user.role && user.role !== 'admin') {
       return res.status(403).json({ error: 'WRONG_ROLE', role: user.role })

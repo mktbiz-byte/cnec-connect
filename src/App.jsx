@@ -39,7 +39,11 @@ const Messages = lazy(() => import('@/pages/common/Messages'))
 const AdminDashboard = lazy(() => import('@/pages/admin/Dashboard'))
 const AdminUsers = lazy(() => import('@/pages/admin/Users'))
 const AdminCampaigns = lazy(() => import('@/pages/admin/Campaigns'))
+const AdminApplications = lazy(() => import('@/pages/admin/Applications'))
+const AdminContent = lazy(() => import('@/pages/admin/Content'))
 const AdminPayments = lazy(() => import('@/pages/admin/Payments'))
+const AdminBroadcast = lazy(() => import('@/pages/admin/Broadcast'))
+const AdminActivity = lazy(() => import('@/pages/admin/Activity'))
 const AdminImports = lazy(() => import('@/pages/admin/Imports'))
 
 const Placeholder = lazy(() => import('@/pages/common/Placeholder'))
@@ -127,7 +131,11 @@ export default function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="campaigns" element={<AdminCampaigns />} />
+          <Route path="applications" element={<AdminApplications />} />
+          <Route path="content" element={<AdminContent />} />
           <Route path="payments" element={<AdminPayments />} />
+          <Route path="broadcast" element={<AdminBroadcast />} />
+          <Route path="activity" element={<AdminActivity />} />
           <Route path="imports" element={<AdminImports />} />
         </Route>
 

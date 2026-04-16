@@ -15,6 +15,8 @@ import {
   ShieldCheck,
   Database,
   UserCog,
+  Bell,
+  Activity,
 } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
 import NotificationBell from '@/components/ui/NotificationBell'
@@ -47,8 +49,12 @@ const ADMIN_NAV = [
   { to: '/app/admin', label: '대시보드', icon: LayoutDashboard, end: true },
   { to: '/app/admin/users', label: '사용자 관리', icon: UserCog },
   { to: '/app/admin/campaigns', label: '캠페인 관리', icon: Megaphone },
+  { to: '/app/admin/applications', label: '지원 관리', icon: Inbox },
+  { to: '/app/admin/content', label: '콘텐츠 모더레이션', icon: FileVideo },
   { to: '/app/admin/payments', label: '결제 관리', icon: Wallet },
+  { to: '/app/admin/broadcast', label: '공지·알림', icon: Bell },
   { to: '/app/admin/imports', label: '데이터 임포트', icon: Database },
+  { to: '/app/admin/activity', label: '활동 피드', icon: Activity },
 ]
 
 export default function AppLayout() {
