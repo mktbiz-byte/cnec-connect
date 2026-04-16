@@ -9,6 +9,13 @@ export function AuthProvider({ children }) {
   const [status, setStatus] = useState('loading') // loading | authed | anonymous
 
   const bootstrap = useCallback(async () => {
+    // API base URL이 설정되지 않은 환경(예: 초기 Vercel 배포)에서는
+    // 자기 자신에게 요청을 보내 엉뚱한 응답을 받게 되므로 아예 건너뛴다.
+    const base = import.meta.env.VITE_API_BASE_URL
+    if (!base && typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      setStatus('anonymous')
+      return
+    }
     try {
       await authApi.refresh()
       const { user, profile } = await authApi.me()
