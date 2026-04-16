@@ -97,7 +97,7 @@ export default function CreatorContent() {
                 <Input label="공유" type="number" value={form.shares} onChange={(e) => set('shares', e.target.value)} min={0} />
               </div>
               {error && <div className="text-[12.5px] text-[#FF5A5A]">{error}</div>}
-              {ok && <div className="text-[12.5px] text-[#0E7A3C]">제출되었습니다. 브랜드 승인 후 대시보드에 반영됩니다.</div>}
+              {ok && <div className="text-[12.5px] text-[#17804D]">제출되었습니다. 브랜드 승인 후 대시보드에 반영됩니다.</div>}
               <Button type="submit" size="lg" fullWidth loading={saving}>콘텐츠 등록</Button>
             </form>
           )}

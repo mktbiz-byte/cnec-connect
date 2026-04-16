@@ -19,7 +19,8 @@ export default function LoginForm({ role, title, subtitle, signupTo, accentClass
     setLoading(true)
     try {
       const user = await login(email.trim(), password, role)
-      const dest = location.state?.from?.pathname || (user.role === 'business' ? '/app/business' : '/app/creator')
+      const dest = location.state?.from?.pathname ||
+        (user.role === 'admin' ? '/app/admin' : user.role === 'business' ? '/app/business' : '/app/creator')
       navigate(dest, { replace: true })
     } catch (err) {
       if (err.message === 'WRONG_ROLE') setError('다른 역할로 가입된 계정입니다. 역할을 확인해주세요.')

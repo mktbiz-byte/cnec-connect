@@ -52,7 +52,7 @@ export default function CreatorPublicProfile() {
             <div className="md:col-span-2">
               <div className="eyebrow">CREATOR PROFILE</div>
               <div className="mt-3 flex items-center gap-4">
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-[#5B47FB] to-[#00C2A8] text-white flex items-center justify-center font-extrabold text-[32px] border-4 border-white shadow-card">
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-[#5B47FB] text-white flex items-center justify-center font-extrabold text-[32px] border-4 border-white shadow-card">
                   {creator.display_name?.[0] || creator.handle?.[0]?.toUpperCase()}
                 </div>
                 <div>

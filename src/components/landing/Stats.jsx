@@ -10,15 +10,17 @@ const STATS = [
 
 export default function Stats() {
   return (
-    <section className="py-16 sm:py-20 border-y border-[#EEF0F4] bg-white">
+    <section className="py-20 sm:py-24 bg-white border-y border-[#E7E8EE]">
       <Container>
-        <div className="eyebrow">말보다 결과로 증명합니다</div>
-        <h2 className="display-2 mt-3">숫자로 보는 CNEC Connect</h2>
+        <div className="max-w-3xl">
+          <div className="eyebrow">말보다 결과로 증명합니다</div>
+          <h2 className="display-2 mt-3 text-[#0B0B1A]">숫자로 보는 CNEC Connect</h2>
+        </div>
 
-        <div className="mt-10 grid grid-cols-2 md:grid-cols-5 gap-6">
+        <div className="mt-12 grid grid-cols-2 md:grid-cols-5 gap-6">
           {STATS.map((s) => (
-            <div key={s.label} className="border-t border-[#EEF0F4] pt-5">
-              <div className="text-[36px] md:text-[44px] font-extrabold text-[#0B0B1A] tracking-tight">
+            <div key={s.label} className="border-t border-[#E7E8EE] pt-6">
+              <div className="text-[34px] md:text-[42px] font-extrabold text-[#0B0B1A] tracking-tight">
                 {s.value}
               </div>
               <div className="mt-2 text-[13.5px] text-[#6B7280]">{s.label}</div>

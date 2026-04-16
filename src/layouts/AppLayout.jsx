@@ -12,6 +12,9 @@ import {
   Inbox,
   LogOut,
   FileVideo,
+  ShieldCheck,
+  Database,
+  UserCog,
 } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
 import NotificationBell from '@/components/ui/NotificationBell'
@@ -40,10 +43,19 @@ const BUSINESS_NAV = [
   { to: '/app/business/settings', label: '설정', icon: Settings },
 ]
 
+const ADMIN_NAV = [
+  { to: '/app/admin', label: '대시보드', icon: LayoutDashboard, end: true },
+  { to: '/app/admin/users', label: '사용자 관리', icon: UserCog },
+  { to: '/app/admin/campaigns', label: '캠페인 관리', icon: Megaphone },
+  { to: '/app/admin/payments', label: '결제 관리', icon: Wallet },
+  { to: '/app/admin/imports', label: '데이터 임포트', icon: Database },
+]
+
 export default function AppLayout() {
   const { user, profile, logout } = useAuth()
   const navigate = useNavigate()
-  const nav = user?.role === 'business' ? BUSINESS_NAV : CREATOR_NAV
+  const nav = user?.role === 'admin' ? ADMIN_NAV : user?.role === 'business' ? BUSINESS_NAV : CREATOR_NAV
+  const workspaceLabel = user?.role === 'admin' ? 'Admin Console' : user?.role === 'business' ? 'Brand Workspace' : 'Creator Workspace'
 
   const handleLogout = async () => {
     await logout()
@@ -58,7 +70,7 @@ export default function AppLayout() {
         </div>
         <div className="px-3 py-4 flex-1 overflow-y-auto">
           <div className="px-2 py-2 text-[11px] font-bold uppercase tracking-wider text-[#9CA3AF]">
-            {user?.role === 'business' ? 'Brand Workspace' : 'Creator Workspace'}
+            {workspaceLabel}
           </div>
           <nav className="flex flex-col gap-0.5">
             {nav.map((n) => (
@@ -83,14 +95,14 @@ export default function AppLayout() {
         </div>
         <div className="p-3 border-t border-[#EEF0F4]">
           <div className="px-2 py-2 flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#5B47FB] to-[#00C2A8] text-white flex items-center justify-center font-bold">
+            <div className="w-9 h-9 rounded-full bg-[#5B47FB] text-white flex items-center justify-center font-bold">
               {(profile?.display_name || profile?.company_name || user?.email || '?')[0]}
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-[12.5px] font-bold text-[#0B0B1A] truncate">
                 {profile?.display_name || profile?.company_name || user?.email}
               </div>
-              <div className="text-[11px] text-[#6B7280]">{user?.role === 'business' ? '브랜드' : '크리에이터'}</div>
+              <div className="text-[11px] text-[#6B7280]">{user?.role === 'admin' ? '관리자' : user?.role === 'business' ? '브랜드' : '크리에이터'}</div>
             </div>
             <button onClick={handleLogout} className="w-8 h-8 rounded-lg hover:bg-[#F3F4F6] inline-flex items-center justify-center" aria-label="로그아웃">
               <LogOut size={15} className="text-[#6B7280]" />

@@ -44,8 +44,8 @@ export default function CreatorDashboard() {
       />
       <div className="px-6 md:px-10 py-8 max-w-[1280px] mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <StatCard icon={Inbox} label="지원 중" value={pending} tone="bg-[#F2EFFF] text-[#4735D1]" />
-          <StatCard icon={Megaphone} label="확정된 캠페인" value={accepted} tone="bg-[#DEFFF8] text-[#006E60]" />
+          <StatCard icon={Inbox} label="지원 중" value={pending} tone="bg-[#F3F1FF] text-[#4733D6]" />
+          <StatCard icon={Megaphone} label="확정된 캠페인" value={accepted} tone="bg-[#F3F1FF] text-[#4733D6]" />
           <StatCard icon={Wallet} label="예상 수익" value={formatMoney(accepted * 500000)} tone="bg-[#FFF4DE] text-[#8A5A00]" />
         </div>
 
@@ -63,7 +63,7 @@ export default function CreatorDashboard() {
               <div className="mt-5 divide-y divide-[#F1F2F6]">
                 {apps.slice(0, 5).map((a) => (
                   <div key={a.id} className="py-3.5 flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#5B47FB] to-[#00C2A8]" />
+                    <div className="w-9 h-9 rounded-lg bg-[#5B47FB]" />
                     <div className="flex-1 min-w-0">
                       <div className="text-[13.5px] font-bold text-[#0B0B1A] truncate">{a.campaign_title}</div>
                       <div className="text-[11.5px] text-[#6B7280]">{a.company_name} · 지원일 {new Date(a.applied_at).toLocaleDateString('ko-KR')}</div>

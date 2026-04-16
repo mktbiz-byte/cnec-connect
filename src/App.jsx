@@ -36,6 +36,12 @@ const BusinessAnalytics = lazy(() => import('@/pages/business/Analytics'))
 
 const Messages = lazy(() => import('@/pages/common/Messages'))
 
+const AdminDashboard = lazy(() => import('@/pages/admin/Dashboard'))
+const AdminUsers = lazy(() => import('@/pages/admin/Users'))
+const AdminCampaigns = lazy(() => import('@/pages/admin/Campaigns'))
+const AdminPayments = lazy(() => import('@/pages/admin/Payments'))
+const AdminImports = lazy(() => import('@/pages/admin/Imports'))
+
 const Placeholder = lazy(() => import('@/pages/common/Placeholder'))
 
 function Loading() {
@@ -107,6 +113,22 @@ export default function App() {
           <Route path="payments" element={<BusinessPayments />} />
           <Route path="analytics" element={<BusinessAnalytics />} />
           <Route path="settings" element={<Placeholder title="설정" description="팀·계정·알림" />} />
+        </Route>
+
+        {/* 관리자 앱 */}
+        <Route
+          path="app/admin"
+          element={
+            <PrivateRoute role="admin">
+              <AppLayout />
+            </PrivateRoute>
+          }
+        >
+          <Route index element={<AdminDashboard />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="campaigns" element={<AdminCampaigns />} />
+          <Route path="payments" element={<AdminPayments />} />
+          <Route path="imports" element={<AdminImports />} />
         </Route>
 
         <Route path="*" element={<PublicLayout />}>

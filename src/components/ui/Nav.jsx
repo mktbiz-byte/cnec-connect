@@ -27,7 +27,7 @@ export default function Nav() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  const appHome = user?.role === 'business' ? '/app/business' : '/app/creator'
+  const appHome = user?.role === 'admin' ? '/app/admin' : user?.role === 'business' ? '/app/business' : '/app/creator'
 
   return (
     <header

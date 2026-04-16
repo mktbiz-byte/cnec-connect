@@ -14,12 +14,12 @@ export default function PrivateRoute({ role, children }) {
   }
 
   if (!user) {
-    const to = role === 'business' ? '/login/business' : '/login/creator'
+    const to = role === 'business' ? '/login/business' : role === 'admin' ? '/login/business' : '/login/creator'
     return <Navigate to={to} state={{ from: location }} replace />
   }
 
   if (role && user.role !== role) {
-    const home = user.role === 'business' ? '/app/business' : '/app/creator'
+    const home = user.role === 'admin' ? '/app/admin' : user.role === 'business' ? '/app/business' : '/app/creator'
     return <Navigate to={home} replace />
   }
 

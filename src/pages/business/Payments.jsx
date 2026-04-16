@@ -39,9 +39,9 @@ export default function BusinessPayments() {
       />
       <div className="px-6 md:px-10 py-8 max-w-[1280px] mx-auto">
         <div className="grid md:grid-cols-3 gap-4">
-          <Stat label="총 결제 금액" value={formatMoney(total)} tone="bg-[#F2EFFF] text-[#4735D1]" />
+          <Stat label="총 결제 금액" value={formatMoney(total)} tone="bg-[#F3F1FF] text-[#4733D6]" />
           <Stat label="에스크로 보관" value={formatMoney(held)} tone="bg-[#FFF4DE] text-[#8A5A00]" />
-          <Stat label="정산 완료" value={formatMoney(released)} tone="bg-[#DEFFE5] text-[#0E7A3C]" />
+          <Stat label="정산 완료" value={formatMoney(released)} tone="bg-[#ECFDF3] text-[#17804D]" />
         </div>
 
         <Card className="mt-8" padded={false}>

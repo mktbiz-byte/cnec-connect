@@ -75,7 +75,7 @@ export default function BusinessAnalytics() {
                       <XAxis dataKey="name" stroke="#9CA3AF" fontSize={11} />
                       <YAxis stroke="#9CA3AF" fontSize={11} />
                       <Tooltip />
-                      <Bar dataKey="views" fill="#00C2A8" radius={[8, 8, 0, 0]} />
+                      <Bar dataKey="views" fill="#5B47FB" radius={[8, 8, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>

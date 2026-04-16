@@ -102,6 +102,15 @@ async function run() {
   const passwordHash = await hashPassword(DEMO_PASSWORD)
 
   await withTx(async (client) => {
+    // 관리자 계정
+    await client.query(
+      `INSERT INTO users(email, password_hash, role, email_verified)
+       VALUES ($1, $2, 'admin', true)
+       ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash, role = 'admin'`,
+      ['admin@demo.cnec.co', passwordHash],
+    )
+    console.log('admin: admin@demo.cnec.co')
+
     const businessIds = {}
     for (const s of BUSINESS_SEEDS) {
       businessIds[s.email] = await upsertBusiness(client, passwordHash, s)

@@ -25,10 +25,8 @@ export default function Testimonials() {
     <section id="cases" className="py-24 sm:py-32 bg-[#0B0B1A] text-white">
       <Container>
         <div className="max-w-3xl">
-          <div className="eyebrow !text-[#9C8AFF]">고객의 이야기</div>
-          <h2 className="display-2 mt-3 text-white">
-            <span className="gradient-text">결과로</span> 증명된 플랫폼.
-          </h2>
+          <div className="eyebrow text-[#A898FF]">고객의 이야기</div>
+          <h2 className="display-2 mt-3 text-white">결과로 증명된 플랫폼.</h2>
           <p className="mt-4 text-[16px] text-white/70">
             규모에 상관없이, 1인 크리에이터부터 엔터프라이즈까지 CNEC Connect를 선택합니다.
           </p>
@@ -36,10 +34,10 @@ export default function Testimonials() {
 
         <div className="mt-14 grid md:grid-cols-3 gap-5">
           {QUOTES.map((t) => (
-            <blockquote key={t.who} className="rounded-[22px] bg-white/5 border border-white/10 p-7">
-              <div className="text-[15.5px] leading-relaxed text-white/90">“{t.q}”</div>
+            <blockquote key={t.who} className="rounded-[20px] bg-white/5 border border-white/10 p-7">
+              <div className="text-[15.5px] leading-relaxed text-white/90">"{t.q}"</div>
               <footer className="mt-6 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#5B47FB] to-[#00C2A8]" />
+                <div className="w-10 h-10 rounded-full bg-[#5B47FB]" />
                 <div>
                   <div className="text-[13px] font-bold">{t.who}</div>
                   <div className="text-[11.5px] text-white/60">{t.company}</div>

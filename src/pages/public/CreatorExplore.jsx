@@ -116,14 +116,14 @@ function CreatorCard({ creator }) {
       to={`/creators/${creator.handle}`}
       className="block bg-white rounded-[20px] border border-[#EEF0F4] hover:border-[#0B0B1A] hover:shadow-elevated transition-all overflow-hidden group"
     >
-      <div className="h-24 bg-gradient-to-br from-[#F2EFFF] via-white to-[#DEFFF8]" />
+      <div className="h-24 bg-gradient-to-br from-[#F3F1FF] via-white to-[#F3F1FF]" />
       <div className="px-5 pb-5">
         <div className="-mt-8 flex items-end justify-between">
-          <div className="w-16 h-16 rounded-full border-4 border-white bg-gradient-to-br from-[#5B47FB] to-[#00C2A8] text-white flex items-center justify-center font-extrabold text-[18px]">
+          <div className="w-16 h-16 rounded-full border-4 border-white bg-[#5B47FB] text-white flex items-center justify-center font-extrabold text-[18px]">
             {creator.display_name?.[0] || creator.handle?.[0]?.toUpperCase()}
           </div>
           {creator.verified && (
-            <span className="inline-flex items-center gap-1 h-6 px-2 rounded-full bg-[#F2EFFF] text-[#4735D1] text-[11px] font-bold">
+            <span className="inline-flex items-center gap-1 h-6 px-2 rounded-full bg-[#F3F1FF] text-[#4733D6] text-[11px] font-bold">
               <BadgeCheck size={12} /> 인증
             </span>
           )}
@@ -146,7 +146,7 @@ function CreatorCard({ creator }) {
           </div>
           <div className="border-x border-[#F1F2F6]">
             <div className="text-[11px] text-[#6B7280]">참여율</div>
-            <div className="font-extrabold text-[14px] text-[#00C2A8] inline-flex items-center gap-0.5 justify-center">
+            <div className="font-extrabold text-[14px] text-[#5B47FB] inline-flex items-center gap-0.5 justify-center">
               {Number(creator.engagement_rate || 0).toFixed(1)}% <TrendingUp size={10} />
             </div>
           </div>

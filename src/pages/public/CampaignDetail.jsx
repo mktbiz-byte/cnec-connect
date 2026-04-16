@@ -91,7 +91,7 @@ export default function PublicCampaignDetail() {
             <Card>
               <h3 className="text-[16px] font-extrabold">지원하기</h3>
               {result === 'ok' ? (
-                <div className="mt-4 p-4 rounded-xl bg-[#DEFFE5] text-[#0E7A3C] text-[13.5px]">지원이 접수되었습니다. 결과는 이메일과 대시보드에서 확인할 수 있습니다.</div>
+                <div className="mt-4 p-4 rounded-xl bg-[#ECFDF3] text-[#17804D] text-[13.5px]">지원이 접수되었습니다. 결과는 이메일과 대시보드에서 확인할 수 있습니다.</div>
               ) : result === 'already' ? (
                 <div className="mt-4 p-4 rounded-xl bg-[#FFF4DE] text-[#8A5A00] text-[13.5px]">이미 지원한 캠페인입니다.</div>
               ) : (

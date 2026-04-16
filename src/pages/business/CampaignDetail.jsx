@@ -81,7 +81,7 @@ export default function CampaignDetail() {
             <div className="mt-5 divide-y divide-[#F1F2F6]">
               {apps.map((a) => (
                 <div key={a.id} className="py-4 flex items-center gap-4">
-                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#5B47FB] to-[#00C2A8] text-white flex items-center justify-center font-bold">
+                  <div className="w-11 h-11 rounded-full bg-[#5B47FB] text-white flex items-center justify-center font-bold">
                     {a.display_name?.[0] || '?'}
                   </div>
                   <div className="flex-1 min-w-0">

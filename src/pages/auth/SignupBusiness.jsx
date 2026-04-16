@@ -86,7 +86,7 @@ export default function SignupBusiness() {
         </p>
 
         <div className="mt-6 h-1.5 bg-[#F3F4F6] rounded-full overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-[#5B47FB] to-[#00C2A8]" style={{ width: `${(step / 3) * 100}%` }} />
+          <div className="h-full bg-[#5B47FB]" style={{ width: `${(step / 3) * 100}%` }} />
         </div>
 
         <form onSubmit={step === 3 ? submit : next} className="mt-8 flex flex-col gap-4">

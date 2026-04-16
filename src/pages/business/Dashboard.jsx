@@ -53,7 +53,7 @@ export default function BusinessDashboard() {
             <div className="mt-5 divide-y divide-[#F1F2F6]">
               {campaigns.slice(0, 6).map((c) => (
                 <div key={c.id} className="py-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#5B47FB] to-[#00C2A8]" />
+                  <div className="w-10 h-10 rounded-lg bg-[#5B47FB]" />
                   <div className="flex-1 min-w-0">
                     <div className="font-bold text-[#0B0B1A] text-[14px] truncate">{c.title}</div>
                     <div className="text-[12px] text-[#6B7280]">{c.category} · {new Date(c.created_at).toLocaleDateString('ko-KR')}</div>
@@ -74,7 +74,7 @@ export default function BusinessDashboard() {
 function Stat({ icon: Icon, label, value }) {
   return (
     <div className="bg-white border border-[#EEF0F4] rounded-[18px] p-5 flex items-center gap-4">
-      <div className="w-11 h-11 rounded-xl bg-[#F2EFFF] text-[#4735D1] flex items-center justify-center"><Icon size={20} /></div>
+      <div className="w-11 h-11 rounded-xl bg-[#F3F1FF] text-[#4733D6] flex items-center justify-center"><Icon size={20} /></div>
       <div>
         <div className="text-[12px] font-semibold text-[#6B7280]">{label}</div>
         <div className="mt-0.5 text-[22px] font-extrabold text-[#0B0B1A]">{value}</div>

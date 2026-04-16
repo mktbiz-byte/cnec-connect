@@ -79,7 +79,7 @@ export default function CampaignNew() {
       <form onSubmit={step === 4 ? submit : next} className="px-6 md:px-10 py-8 max-w-[820px] mx-auto">
         <div className="mb-6 flex items-center gap-2">
           {[1, 2, 3, 4].map((n) => (
-            <div key={n} className={`h-1.5 flex-1 rounded-full ${n <= step ? 'bg-gradient-to-r from-[#5B47FB] to-[#00C2A8]' : 'bg-[#F3F4F6]'}`} />
+            <div key={n} className={`h-1.5 flex-1 rounded-full ${n <= step ? 'bg-[#5B47FB]' : 'bg-[#F3F4F6]'}`} />
           ))}
         </div>
 

@@ -24,7 +24,7 @@ export default function CreatorEarnings() {
       <PageHeader title="수익 · 정산" subtitle="에스크로로 보호되는 안전한 정산 내역" />
       <div className="px-6 md:px-10 py-8 max-w-[1280px] mx-auto">
         <div className="grid md:grid-cols-2 gap-4">
-          <div className="bg-gradient-to-br from-[#5B47FB] to-[#00C2A8] text-white rounded-[18px] p-6">
+          <div className="bg-[#5B47FB] text-white rounded-[18px] p-6">
             <div className="text-[12px] font-semibold text-white/80">정산 완료</div>
             <div className="mt-2 text-[32px] font-extrabold tracking-tight">{formatMoney(released)}</div>
           </div>

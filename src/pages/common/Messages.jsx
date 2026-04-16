@@ -89,7 +89,7 @@ export default function Messages() {
                       activeId === t.id && 'bg-[#F5F6FA]',
                     )}
                   >
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#5B47FB] to-[#00C2A8] text-white font-bold flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-[#5B47FB] text-white font-bold flex items-center justify-center">
                       {(p.name || '?')[0]}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -116,7 +116,7 @@ export default function Messages() {
             ) : (
               <>
                 <div className="px-5 py-4 border-b border-[#EEF0F4] flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#5B47FB] to-[#00C2A8] text-white font-bold flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-full bg-[#5B47FB] text-white font-bold flex items-center justify-center">
                     {(partner(thread).name || '?')[0]}
                   </div>
                   <div>

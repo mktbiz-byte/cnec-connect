@@ -6,7 +6,7 @@ const variants = {
   secondary: 'bg-[#0B0B1A] text-white hover:bg-[#333452]',
   ghost: 'bg-transparent text-[#0B0B1A] hover:bg-[#F3F4F6]',
   outline: 'bg-white text-[#0B0B1A] border border-[#E5E7EB] hover:border-[#0B0B1A]',
-  soft: 'bg-[#F2EFFF] text-[#4735D1] hover:bg-[#E3DDFF]',
+  soft: 'bg-[#F3F1FF] text-[#4733D6] hover:bg-[#E5E0FF]',
   danger: 'bg-[#FF5A5A] text-white hover:bg-[#E04848]',
 }
 

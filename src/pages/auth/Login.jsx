@@ -29,7 +29,7 @@ export default function Login() {
           </Link>
           <Link
             to="/login/creator"
-            className="group relative rounded-[24px] bg-gradient-to-br from-[#5B47FB] to-[#00C2A8] text-white p-8 hover:shadow-elevated transition-all"
+            className="group relative rounded-[24px] bg-[#5B47FB] text-white p-8 hover:shadow-elevated hover:bg-[#4733D6] transition-all"
           >
             <div className="w-12 h-12 rounded-xl bg-white/20 inline-flex items-center justify-center">
               <UserRound size={22} />

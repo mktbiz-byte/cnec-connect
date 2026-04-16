@@ -135,7 +135,8 @@ router.post('/login', async (req, res, next) => {
     const user = rows[0]
     const ok = await verifyPassword(body.password, user.password_hash)
     if (!ok) return res.status(401).json({ error: 'INVALID_CREDENTIALS' })
-    if (body.expectedRole && body.expectedRole !== user.role) {
+    // admin 계정은 모든 로그인 페이지에서 입장 가능
+    if (body.expectedRole && body.expectedRole !== user.role && user.role !== 'admin') {
       return res.status(403).json({ error: 'WRONG_ROLE', role: user.role })
     }
     const accessToken = issueTokens(res, user)

@@ -59,7 +59,7 @@ export default function CreatorCampaigns() {
           <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((c) => (
               <Card as={Link} to={`/campaigns/${c.id}`} key={c.id} hover padded={false} className="overflow-hidden">
-                <div className="h-32 bg-gradient-to-br from-[#F2EFFF] via-white to-[#DEFFF8]" />
+                <div className="h-32 bg-gradient-to-br from-[#F3F1FF] via-white to-[#F3F1FF]" />
                 <div className="p-5">
                   <div className="flex items-center justify-between">
                     <Badge tone="brand">{c.category}</Badge>

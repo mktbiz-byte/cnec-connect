@@ -86,7 +86,7 @@ export default function SignupCreator() {
 
         <div className="mt-6 h-1.5 bg-[#F3F4F6] rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-[#5B47FB] to-[#00C2A8] transition-all"
+            className="h-full bg-[#5B47FB] transition-all"
             style={{ width: `${(step / 3) * 100}%` }}
           />
         </div>

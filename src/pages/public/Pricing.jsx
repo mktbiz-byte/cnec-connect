@@ -70,7 +70,7 @@ export default function Pricing() {
               }`}
             >
               {p.highlighted && (
-                <div className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full bg-gradient-to-r from-[#5B47FB] to-[#00C2A8] text-white text-[11px] font-bold">
+                <div className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full bg-[#5B47FB] text-white text-[11px] font-bold">
                   가장 인기
                 </div>
               )}
@@ -82,7 +82,7 @@ export default function Pricing() {
               </div>
               <ul className={`mt-6 flex flex-col gap-2.5 text-[14px] ${p.highlighted ? 'text-white/90' : 'text-[#333452]'}`}>
                 {p.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2"><Check size={16} className={p.highlighted ? 'text-[#00E8C8] mt-0.5' : 'text-[#00C2A8] mt-0.5'} /> {f}</li>
+                  <li key={f} className="flex items-start gap-2"><Check size={16} className={p.highlighted ? 'text-[#5B47FB] mt-0.5' : 'text-[#5B47FB] mt-0.5'} /> {f}</li>
                 ))}
               </ul>
               <div className="mt-8">
