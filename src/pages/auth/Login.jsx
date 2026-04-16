@@ -53,6 +53,9 @@ export default function Login() {
             크리에이터 가입
           </Link>
         </div>
+        <div className="mt-4 text-center">
+          <Link to="/login/admin" className="text-[12px] text-[#9CA3AF] hover:text-[#0B0B1A]">관리자 로그인 →</Link>
+        </div>
       </div>
     </div>
   )

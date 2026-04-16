@@ -15,6 +15,7 @@ const PublicCampaignDetail = lazy(() => import('@/pages/public/CampaignDetail'))
 const Login = lazy(() => import('@/pages/auth/Login'))
 const LoginCreator = lazy(() => import('@/pages/auth/LoginCreator'))
 const LoginBusiness = lazy(() => import('@/pages/auth/LoginBusiness'))
+const LoginAdmin = lazy(() => import('@/pages/auth/LoginAdmin'))
 const SignupCreator = lazy(() => import('@/pages/auth/SignupCreator'))
 const SignupBusiness = lazy(() => import('@/pages/auth/SignupBusiness'))
 const ForgotPassword = lazy(() => import('@/pages/auth/ForgotPassword'))
@@ -75,6 +76,7 @@ export default function App() {
           <Route path="login" element={<Login />} />
           <Route path="login/creator" element={<LoginCreator />} />
           <Route path="login/business" element={<LoginBusiness />} />
+          <Route path="login/admin" element={<LoginAdmin />} />
           <Route path="signup/creator" element={<SignupCreator />} />
           <Route path="signup/business" element={<SignupBusiness />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
