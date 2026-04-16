@@ -1,38 +1,127 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
-import DashboardLayout from '@/layouts/DashboardLayout'
+import PublicLayout from '@/layouts/PublicLayout'
+import AuthLayout from '@/layouts/AuthLayout'
+import AppLayout from '@/layouts/AppLayout'
+import PrivateRoute from '@/components/PrivateRoute'
 
-const DashboardPage = lazy(() => import('@/pages/DashboardPage'))
-const CreatorSearchPage = lazy(() => import('@/pages/CreatorSearchPage'))
-const CreatorProfilePage = lazy(() => import('@/pages/CreatorProfilePage'))
-const CreatorManagePage = lazy(() => import('@/pages/CreatorManagePage'))
-const CampaignPage = lazy(() => import('@/pages/CampaignPage'))
-const OutreachPage = lazy(() => import('@/pages/OutreachPage'))
-const PlaceholderPage = lazy(() => import('@/pages/PlaceholderPage'))
+const Landing = lazy(() => import('@/pages/public/Landing'))
+const Pricing = lazy(() => import('@/pages/public/Pricing'))
+const About = lazy(() => import('@/pages/public/About'))
+const CreatorExplore = lazy(() => import('@/pages/public/CreatorExplore'))
+const CreatorPublicProfile = lazy(() => import('@/pages/public/CreatorPublicProfile'))
+const PublicCampaignDetail = lazy(() => import('@/pages/public/CampaignDetail'))
+
+const Login = lazy(() => import('@/pages/auth/Login'))
+const LoginCreator = lazy(() => import('@/pages/auth/LoginCreator'))
+const LoginBusiness = lazy(() => import('@/pages/auth/LoginBusiness'))
+const SignupCreator = lazy(() => import('@/pages/auth/SignupCreator'))
+const SignupBusiness = lazy(() => import('@/pages/auth/SignupBusiness'))
+const ForgotPassword = lazy(() => import('@/pages/auth/ForgotPassword'))
+
+const CreatorDashboard = lazy(() => import('@/pages/creator/Dashboard'))
+const CreatorCampaigns = lazy(() => import('@/pages/creator/Campaigns'))
+const Applications = lazy(() => import('@/pages/creator/Applications'))
+const CreatorProfilePage = lazy(() => import('@/pages/creator/Profile'))
+const CreatorEarnings = lazy(() => import('@/pages/creator/Earnings'))
+const CreatorContent = lazy(() => import('@/pages/creator/Content'))
+
+const BusinessDashboard = lazy(() => import('@/pages/business/Dashboard'))
+const BusinessCampaigns = lazy(() => import('@/pages/business/Campaigns'))
+const CampaignNew = lazy(() => import('@/pages/business/CampaignNew'))
+const CampaignDetail = lazy(() => import('@/pages/business/CampaignDetail'))
+const BusinessCreatorsSearch = lazy(() => import('@/pages/business/CreatorsSearch'))
+const BusinessPayments = lazy(() => import('@/pages/business/Payments'))
+const BusinessAnalytics = lazy(() => import('@/pages/business/Analytics'))
+
+const Messages = lazy(() => import('@/pages/common/Messages'))
+
+const Placeholder = lazy(() => import('@/pages/common/Placeholder'))
 
 function Loading() {
-  return <div className="flex items-center justify-center h-64"><div className="w-6 h-6 border-2 border-[#6C5CE7] border-t-transparent rounded-full animate-spin" /></div>
+  return (
+    <div className="min-h-[60vh] flex items-center justify-center">
+      <div className="w-6 h-6 border-2 border-[#5B47FB] border-t-transparent rounded-full animate-spin" />
+    </div>
+  )
 }
 
 export default function App() {
   return (
     <Suspense fallback={<Loading />}>
       <Routes>
-        <Route element={<DashboardLayout />}>
-          <Route index element={<DashboardPage />} />
-          <Route path="alerts" element={<PlaceholderPage title="알림" />} />
-          <Route path="creators/search" element={<CreatorSearchPage />} />
-          <Route path="creators/manage" element={<CreatorManagePage />} />
-          <Route path="creators/ranking" element={<PlaceholderPage title="크리에이터 랭킹" desc="월별/카테고리별 인게이지먼트 랭킹" />} />
-          <Route path="creators/ai" element={<PlaceholderPage title="AI 리스트업" desc="AI에게 크리에이터 추천을 요청하세요" />} />
-          <Route path="creators/:id" element={<CreatorProfilePage />} />
-          <Route path="content/library" element={<PlaceholderPage title="콘텐츠 라이브러리" desc="캠페인 콘텐츠를 한곳에서 관리" />} />
-          <Route path="content/tracking" element={<PlaceholderPage title="콘텐츠 트래킹" desc="키워드 기반 콘텐츠 자동 수집 및 성과 추적" />} />
-          <Route path="campaigns" element={<CampaignPage />} />
-          <Route path="outreach" element={<OutreachPage />} />
-          <Route path="settings" element={<PlaceholderPage title="설정" desc="구독 관리, 발신 계정, Meta 연동" />} />
+        {/* 공개 */}
+        <Route element={<PublicLayout />}>
+          <Route index element={<Landing />} />
+          <Route path="pricing" element={<Pricing />} />
+          <Route path="about" element={<About />} />
+          <Route path="creators/explore" element={<CreatorExplore />} />
+          <Route path="creators/:handle" element={<CreatorPublicProfile />} />
+          <Route path="campaigns/:id" element={<PublicCampaignDetail />} />
+        </Route>
+
+        {/* 인증 */}
+        <Route element={<AuthLayout />}>
+          <Route path="login" element={<Login />} />
+          <Route path="login/creator" element={<LoginCreator />} />
+          <Route path="login/business" element={<LoginBusiness />} />
+          <Route path="signup/creator" element={<SignupCreator />} />
+          <Route path="signup/business" element={<SignupBusiness />} />
+          <Route path="forgot-password" element={<ForgotPassword />} />
+        </Route>
+
+        {/* 크리에이터 앱 */}
+        <Route
+          path="app/creator"
+          element={
+            <PrivateRoute role="creator">
+              <AppLayout />
+            </PrivateRoute>
+          }
+        >
+          <Route index element={<CreatorDashboard />} />
+          <Route path="campaigns" element={<CreatorCampaigns />} />
+          <Route path="applications" element={<Applications />} />
+          <Route path="messages" element={<Messages />} />
+          <Route path="earnings" element={<CreatorEarnings />} />
+          <Route path="content" element={<CreatorContent />} />
+          <Route path="profile" element={<CreatorProfilePage />} />
+          <Route path="settings" element={<Placeholder title="설정" description="계정·알림·연동 관리" />} />
+        </Route>
+
+        {/* 기업 앱 */}
+        <Route
+          path="app/business"
+          element={
+            <PrivateRoute role="business">
+              <AppLayout />
+            </PrivateRoute>
+          }
+        >
+          <Route index element={<BusinessDashboard />} />
+          <Route path="creators" element={<BusinessCreatorsSearch />} />
+          <Route path="campaigns" element={<BusinessCampaigns />} />
+          <Route path="campaigns/new" element={<CampaignNew />} />
+          <Route path="campaigns/:id" element={<CampaignDetail />} />
+          <Route path="messages" element={<Messages />} />
+          <Route path="payments" element={<BusinessPayments />} />
+          <Route path="analytics" element={<BusinessAnalytics />} />
+          <Route path="settings" element={<Placeholder title="설정" description="팀·계정·알림" />} />
+        </Route>
+
+        <Route path="*" element={<PublicLayout />}>
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </Suspense>
+  )
+}
+
+function NotFound() {
+  return (
+    <div className="py-32 text-center">
+      <div className="text-[60px] font-extrabold">404</div>
+      <div className="mt-2 text-[#6B7280]">페이지를 찾을 수 없습니다.</div>
+    </div>
   )
 }
