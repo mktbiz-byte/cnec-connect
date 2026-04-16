@@ -1,111 +1,47 @@
-# CNEC Taiwan Campaign Platform
+# CNEC TW — 크리에이터 탐색 + 제안 테스트 사이트
 
-Influencer marketing campaign platform for Taiwan market.
+CNEC + 피처링 하이브리드 시스템 1차 프로토타입
 
-## Features
+## 구현된 페이지
 
-- 🎯 Campaign management for Taiwan influencers
-- 👥 Creator application and approval system
-- 💰 Point-based reward system (TWD)
-- 📊 Admin dashboard with analytics
-- 🔐 Secure authentication with Supabase
-- 📧 Email notifications
-- 🌏 Taiwan region-specific (TW)
+| 페이지 | 경로 | 피처링 대응 | 상태 |
+|--------|------|-----------|------|
+| 대시보드 | `/` | 대시보드 | ✅ 완료 |
+| 크리에이터 찾기 | `/creators/search` | 인플루언서 찾기 | ✅ 완료 |
+| 크리에이터 프로필 | `/creators/:id` | 인플루언서 리포트 | ✅ 완료 (핵심지표/콘텐츠/ROAS) |
+| 크리에이터 관리 | `/creators/manage` | 인플루언서 관리 | ✅ 완료 |
+| 캠페인 관리 | `/campaigns` | 캠페인 관리 | ✅ 완료 |
+| DM/이메일 발송 | `/outreach` | DM/이메일 발송 | ✅ 완료 |
+| 크리에이터 랭킹 | `/creators/ranking` | 인플루언서 랭킹 | 🔲 Placeholder |
+| AI 리스트업 | `/creators/ai` | AI 리스트업 | 🔲 Placeholder |
+| 콘텐츠 라이브러리 | `/content/library` | 콘텐츠 라이브러리 | 🔲 Placeholder |
+| 콘텐츠 트래킹 | `/content/tracking` | 콘텐츠 트래킹 | 🔲 Placeholder |
 
-## Tech Stack
+## 기술 스택
 
-- **Frontend**: React + Vite
-- **Styling**: Tailwind CSS
-- **Database**: Supabase (PostgreSQL)
-- **Authentication**: Supabase Auth
-- **Deployment**: Netlify
+- React 19 + Vite 6 + Tailwind CSS 4
+- React Router 7
+- lucide-react (아이콘)
+- recharts (차트 — 향후)
 
-## Setup
+## 배포
 
-### 1. Install Dependencies
-
+### Vercel
 ```bash
-npm install --legacy-peer-deps
+git push origin main
+# Vercel 대시보드에서 cnectw 레포 연결 → 자동 배포
 ```
 
-### 2. Configure Environment Variables
-
-Copy `.env.example` to `.env` and fill in your Taiwan Supabase credentials:
-
-```env
-VITE_SUPABASE_URL=https://your-taiwan-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-taiwan-anon-key
-VITE_PLATFORM_REGION=tw
-VITE_PLATFORM_COUNTRY=TW
-```
-
-### 3. Setup Database
-
-1. Create a new Supabase project (Singapore region recommended)
-2. Run `COMPLETE_TW_SCHEMA.sql` in SQL Editor
-3. Run `FIX_TAIWAN_VIRTUAL_SELECTION.sql` in SQL Editor
-
-### 4. Run Development Server
-
+### 로컬 개발
 ```bash
+npm install
 npm run dev
 ```
 
-Visit http://localhost:5173
+## 다음 단계
 
-### 5. Build for Production
-
-```bash
-npm run build
-```
-
-## Deployment
-
-### Netlify
-
-```bash
-npm install -g netlify-cli
-netlify login
-netlify deploy --prod --dir=dist
-```
-
-Set environment variables in Netlify dashboard.
-
-## Documentation
-
-- `TAIWAN_VERSION_SETUP_GUIDE.md` - Complete setup guide
-- `TAIWAN_DEPLOYMENT_CHECKLIST.md` - Deployment checklist
-- `COMPLETE_TW_SCHEMA.sql` - Database schema
-- `FIX_TAIWAN_VIRTUAL_SELECTION.sql` - Virtual selection feature fix
-
-## Default Configuration
-
-- **Region**: Taiwan (TW)
-- **Currency**: TWD (New Taiwan Dollar)
-- **Locale**: zh-TW (Traditional Chinese)
-- **Timezone**: Asia/Taipei
-
-## Admin Account
-
-After signup, run this SQL to make a user admin:
-
-```sql
-UPDATE user_profiles 
-SET role = 'admin' 
-WHERE email = 'your-email@example.com';
-```
-
-## Support
-
-For issues or questions, contact: support@cnec.tw
-
-## License
-
-Proprietary - CNEC Taiwan
-
----
-
-**Based on**: CNEC US Platform  
-**Platform Region**: Taiwan (TW)  
-**Last Updated**: 2025-10-16
-
+1. Railway API 서버 연결 (크리에이터 DB + 인증)
+2. Apify 1회 대량 수집 → discoverable_creators 테이블
+3. Meta Business Discovery API 연동
+4. 구독제 포인트 시스템 (DM/알림톡 과금)
+5. AI 리스트업 (Gemini 연동)
