@@ -1,0 +1,26 @@
+.cnec-overlay {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 99999;
+  background: #0B0B1A;
+  color: #fff;
+  border-radius: 16px;
+  padding: 16px 20px;
+  font-family: -apple-system, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.5);
+  max-width: 320px;
+  transition: opacity 0.3s, transform 0.3s;
+}
+.cnec-overlay.hidden { opacity: 0; transform: translateY(10px); pointer-events: none; }
+.cnec-overlay-title { font-size: 11px; font-weight: 700; color: #A898FF; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+.cnec-overlay-handle { font-size: 16px; font-weight: 800; color: #fff; }
+.cnec-overlay-row { display: flex; justify-content: space-between; margin-top: 6px; }
+.cnec-overlay-label { color: #9CA3AF; font-size: 12px; }
+.cnec-overlay-value { font-weight: 700; color: #fff; font-size: 13px; }
+.cnec-overlay-value.accent { color: #8270FB; }
+.cnec-overlay-close { position: absolute; top: 8px; right: 12px; background: none; border: none; color: #6B7280; cursor: pointer; font-size: 16px; }
+.cnec-overlay-cta { display: block; margin-top: 12px; text-align: center; background: #5B47FB; color: #fff; padding: 8px 16px; border-radius: 10px; text-decoration: none; font-size: 12px; font-weight: 700; }
+.cnec-overlay-cta:hover { background: #4733D6; }

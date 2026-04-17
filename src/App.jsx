@@ -40,8 +40,11 @@ const Messages = lazy(() => import('@/pages/common/Messages'))
 const AdminDashboard = lazy(() => import('@/pages/admin/Dashboard'))
 const AdminDiscovery = lazy(() => import('@/pages/admin/Discovery'))
 const AdminReport = lazy(() => import('@/pages/admin/Report'))
+const AdminAIListup = lazy(() => import('@/pages/admin/AIListup'))
+const AdminRankings = lazy(() => import('@/pages/admin/Rankings'))
 const AdminGroups = lazy(() => import('@/pages/admin/Groups'))
 const AdminProposals = lazy(() => import('@/pages/admin/Proposals'))
+const AdminDMQueue = lazy(() => import('@/pages/admin/DMQueue'))
 const AdminUsers = lazy(() => import('@/pages/admin/Users'))
 const AdminCampaigns = lazy(() => import('@/pages/admin/Campaigns'))
 const AdminApplications = lazy(() => import('@/pages/admin/Applications'))
@@ -140,8 +143,11 @@ export default function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="discovery" element={<AdminDiscovery />} />
           <Route path="discovery/reports/:source/:id" element={<AdminReport />} />
+          <Route path="ai-listup" element={<AdminAIListup />} />
+          <Route path="rankings" element={<AdminRankings />} />
           <Route path="groups" element={<AdminGroups />} />
           <Route path="proposals" element={<AdminProposals />} />
+          <Route path="dm" element={<AdminDMQueue />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="campaigns" element={<AdminCampaigns />} />
           <Route path="applications" element={<AdminApplications />} />

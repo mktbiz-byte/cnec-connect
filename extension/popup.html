@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { width: 300px; padding: 16px; font-family: -apple-system, sans-serif; margin: 0; }
+    h1 { font-size: 15px; font-weight: 800; color: #0B0B1A; margin: 0 0 4px; }
+    p { font-size: 12px; color: #6B7280; margin: 0 0 12px; }
+    label { display: block; font-size: 12px; font-weight: 600; color: #333452; margin-bottom: 4px; }
+    input { width: 100%; height: 36px; padding: 0 10px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 13px; box-sizing: border-box; }
+    input:focus { border-color: #5B47FB; outline: none; }
+    button { width: 100%; height: 36px; margin-top: 10px; background: #5B47FB; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
+    button:hover { background: #4733D6; }
+    .saved { color: #17804D; font-size: 11px; margin-top: 6px; }
+    .sep { border-top: 1px solid #F1F2F6; margin: 12px 0; }
+  </style>
+</head>
+<body>
+  <h1>CNEC Connect</h1>
+  <p>인스타·유튜브 프로필에 크리에이터 지표 오버레이</p>
+  <label>API URL</label>
+  <input id="api" placeholder="https://cnec-connect-production.up.railway.app">
+  <div class="sep"></div>
+  <label>Access Token (선택 · 로그인 시 필요)</label>
+  <input id="token" placeholder="eyJhbGci...">
+  <button id="save">저장</button>
+  <div id="msg" class="saved" style="display:none">저장되었습니다.</div>
+  <script src="popup.js"></script>
+</body>
+</html>

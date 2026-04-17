@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "CNEC Connect for Chrome",
+  "version": "0.1.0",
+  "description": "인스타그램·유튜브 프로필에 크리에이터 지표 오버레이 (ER, 예상 CPR, 카테고리)",
+  "permissions": ["activeTab", "storage"],
+  "host_permissions": [
+    "https://www.instagram.com/*",
+    "https://www.youtube.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "CNEC Connect"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.instagram.com/*"],
+      "js": ["content-ig.js"],
+      "css": ["overlay.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["content-yt.js"],
+      "css": ["overlay.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}

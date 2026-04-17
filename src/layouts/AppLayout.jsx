@@ -20,6 +20,8 @@ import {
   Compass,
   Send,
   Users2,
+  Sparkles,
+  Trophy,
 } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
 import NotificationBell from '@/components/ui/NotificationBell'
@@ -52,8 +54,11 @@ const BUSINESS_NAV = [
 const ADMIN_NAV = [
   { to: '/app/admin', label: '대시보드', icon: LayoutDashboard, end: true },
   { to: '/app/admin/discovery', label: 'Discovery 검색', icon: Compass },
+  { to: '/app/admin/ai-listup', label: 'AI 리스트업', icon: Sparkles },
+  { to: '/app/admin/rankings', label: '월별 랭킹', icon: Trophy },
   { to: '/app/admin/groups', label: '크리에이터 그룹', icon: Users2 },
   { to: '/app/admin/proposals', label: '제안 관리', icon: Send },
+  { to: '/app/admin/dm', label: 'DM 발송', icon: MessageCircle },
   { to: '/app/admin/users', label: '사용자 관리', icon: UserCog },
   { to: '/app/admin/campaigns', label: '캠페인 관리', icon: Megaphone },
   { to: '/app/admin/applications', label: '지원 관리', icon: Inbox },

@@ -439,6 +439,253 @@ router.post('/proposals/:id/cancel', async (req, res, next) => {
 // 캐시 키: source:id (예: registered:<uuid>, imported:<uuid>)
 // 7일 TTL
 
+// ─── AI 리스트업 (Gemini) ───────────────────────────────────────────
+const GEMINI_KEY = process.env.GEMINI_API_KEY
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
+
+const listupSchema = z.object({ prompt: z.string().min(3).max(1000) })
+
+router.post('/listup', requireAuth, async (req, res, next) => {
+  try {
+    const { prompt } = listupSchema.parse(req.body)
+
+    const row = await query(
+      `INSERT INTO discovery_ai_listup(user_id, prompt, model, status)
+       VALUES ($1, $2, $3, 'processing') RETURNING id`,
+      [req.user.id, prompt, GEMINI_MODEL],
+    )
+    const listupId = row.rows[0].id
+
+    if (!GEMINI_KEY) {
+      // Gemini 키 없으면 DB 기반 간단 매칭으로 폴백
+      const keywords = prompt.replace(/[^가-힣a-zA-Z0-9\s]/g, '').split(/\s+/).filter(Boolean)
+      const where = keywords.map((_, i) => `(cp.display_name ILIKE $${i + 1} OR cp.handle ILIKE $${i + 1} OR $${i + 1} = ANY(cp.categories))`).join(' OR ')
+      const params = keywords.map((k) => `%${k}%`)
+      const { rows } = params.length
+        ? await query(`SELECT cp.user_id AS id, cp.handle, cp.display_name AS name, cp.followers_total AS followers, cp.engagement_rate AS er, cp.categories, cp.region
+                       FROM creator_profiles cp WHERE ${where} ORDER BY cp.followers_total DESC LIMIT 20`, params)
+        : await query(`SELECT cp.user_id AS id, cp.handle, cp.display_name AS name, cp.followers_total AS followers, cp.engagement_rate AS er, cp.categories, cp.region
+                       FROM creator_profiles cp ORDER BY cp.followers_total DESC LIMIT 20`)
+      await query(`UPDATE discovery_ai_listup SET status = 'completed', result_json = $1::jsonb, result_count = $2 WHERE id = $3`,
+        [JSON.stringify({ creators: rows, method: 'keyword_fallback' }), rows.length, listupId])
+      return res.json({ data: rows, method: 'keyword_fallback', listupId })
+    }
+
+    // Gemini API 호출
+    const systemPrompt = `You are a Korean influencer marketing expert. Given a user's natural language request, extract search criteria and return a JSON object with these fields:
+{ "categories": string[], "minFollowers": number|null, "maxFollowers": number|null, "minEr": number|null, "regions": string[], "platforms": string[], "keywords": string[], "reasoning": string }
+Only return valid JSON, no markdown.`
+
+    const geminiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [
+            { role: 'user', parts: [{ text: systemPrompt + '\n\nUser request: ' + prompt }] },
+          ],
+          generationConfig: { temperature: 0.2, maxOutputTokens: 1024 },
+        }),
+      },
+    )
+    const geminiData = await geminiRes.json()
+    const text = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || ''
+    const tokens = geminiData?.usageMetadata?.totalTokenCount || 0
+
+    let criteria
+    try {
+      const cleaned = text.replace(/```json\s*|```/g, '').trim()
+      criteria = JSON.parse(cleaned)
+    } catch {
+      await query(`UPDATE discovery_ai_listup SET status = 'failed', error = $1, tokens_used = $2 WHERE id = $3`,
+        ['JSON parse failed: ' + text.slice(0, 500), tokens, listupId])
+      return res.status(500).json({ error: 'AI_PARSE_FAILED', raw: text.slice(0, 500) })
+    }
+
+    // criteria 기반 DB 검색
+    const params = []
+    const where = []
+    if (criteria.categories?.length) { params.push(criteria.categories); where.push(`cp.categories && $${params.length}::text[]`) }
+    if (criteria.minFollowers) { params.push(criteria.minFollowers); where.push(`cp.followers_total >= $${params.length}`) }
+    if (criteria.maxFollowers) { params.push(criteria.maxFollowers); where.push(`cp.followers_total <= $${params.length}`) }
+    if (criteria.minEr) { params.push(criteria.minEr); where.push(`cp.engagement_rate >= $${params.length}`) }
+    if (criteria.regions?.length) { params.push(criteria.regions); where.push(`cp.region = ANY($${params.length}::text[])`) }
+
+    const { rows } = await query(
+      `SELECT cp.user_id AS id, cp.handle, cp.display_name AS name, cp.followers_total AS followers,
+              cp.engagement_rate AS er, cp.categories, cp.region
+       FROM creator_profiles cp
+       ${where.length ? 'WHERE ' + where.join(' AND ') : ''}
+       ORDER BY cp.engagement_rate DESC
+       LIMIT 20`, params,
+    )
+
+    await query(`UPDATE discovery_ai_listup SET status = 'completed', result_json = $1::jsonb, result_count = $2, tokens_used = $3 WHERE id = $4`,
+      [JSON.stringify({ criteria, creators: rows, reasoning: criteria.reasoning }), rows.length, tokens, listupId])
+
+    res.json({ data: rows, criteria, reasoning: criteria.reasoning, listupId, method: 'gemini' })
+  } catch (err) {
+    if (err.name === 'ZodError') return res.status(400).json({ error: 'VALIDATION' })
+    next(err)
+  }
+})
+
+router.get('/listup/history', requireAuth, async (req, res, next) => {
+  try {
+    const { rows } = await query(
+      `SELECT id, prompt, status, result_count, model, tokens_used, created_at
+       FROM discovery_ai_listup WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50`,
+      [req.user.id],
+    )
+    res.json({ data: rows })
+  } catch (err) { next(err) }
+})
+
+// ─── 월별 TOP 100 랭킹 ─────────────────────────────────────────────
+router.get('/rankings', async (req, res, next) => {
+  try {
+    const month = req.query.month || new Date().toISOString().slice(0, 7)
+    const platform = req.query.platform || 'instagram'
+    const region = req.query.region || 'korea'
+    const { rows } = await query(
+      `SELECT * FROM discovery_rankings
+       WHERE month = $1 AND platform = $2 AND region = $3
+       ORDER BY rank ASC LIMIT 100`,
+      [month, platform, region],
+    )
+    res.json({ data: rows, month, platform, region })
+  } catch (err) { next(err) }
+})
+
+// 랭킹 계산 트리거 (관리자 전용)
+router.post('/rankings/compute', requireAuth, requireRole('admin'), async (req, res, next) => {
+  try {
+    const month = req.body?.month || new Date().toISOString().slice(0, 7)
+    const platform = req.body?.platform || 'instagram'
+    const region = req.body?.region || 'korea'
+
+    // 이전 달
+    const [y, m] = month.split('-').map(Number)
+    const prevDate = new Date(y, m - 2, 1)
+    const prevMonth = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, '0')}`
+
+    const prevRanks = new Map()
+    const prev = await query(
+      `SELECT creator_key, rank FROM discovery_rankings WHERE month = $1 AND platform = $2 AND region = $3`,
+      [prevMonth, platform, region],
+    )
+    for (const r of prev.rows) prevRanks.set(r.creator_key, r.rank)
+
+    // score = followers * 0.3 + avg_views * 0.3 + er * 40000
+    const { rows } = await query(
+      `SELECT cp.user_id, cp.handle, cp.display_name, cp.followers_total, cp.engagement_rate, cp.avg_views,
+              (cp.followers_total * 0.3 + cp.avg_views * 0.3 + cp.engagement_rate * 40000) AS score
+       FROM creator_profiles cp
+       ORDER BY score DESC
+       LIMIT 100`,
+    )
+
+    // 기존 랭킹 삭제 후 새로 삽입
+    await query(`DELETE FROM discovery_rankings WHERE month = $1 AND platform = $2 AND region = $3`, [month, platform, region])
+
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i]
+      const key = `registered:${r.user_id}`
+      const prevRank = prevRanks.get(key) || null
+      await query(
+        `INSERT INTO discovery_rankings(region, platform, month, rank, creator_key, handle, name, followers, er, score, prev_rank, is_new)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+        [region, platform, month, i + 1, key, r.handle, r.display_name, r.followers_total, r.engagement_rate, r.score, prevRank, !prevRank],
+      )
+    }
+
+    res.json({ ok: true, month, computed: rows.length })
+  } catch (err) { next(err) }
+})
+
+// ─── DM 큐 (수동 보조 모드) ─────────────────────────────────────────
+const dmSchema = z.object({
+  creatorUserIds: z.array(z.string().uuid()).optional(),
+  importedCreatorIds: z.array(z.string().uuid()).optional(),
+  platform: z.enum(['instagram', 'x', 'tiktok']).default('instagram'),
+  message: z.string().min(1).max(2000),
+  campaignId: z.string().uuid().optional(),
+})
+
+router.post('/dm/queue', requireAuth, async (req, res, next) => {
+  try {
+    const b = dmSchema.parse(req.body)
+    const targets = [
+      ...(b.creatorUserIds || []).map((id) => ({ creatorUserId: id })),
+      ...(b.importedCreatorIds || []).map((id) => ({ importedCreatorId: id })),
+    ]
+    if (targets.length === 0) return res.status(400).json({ error: 'NO_TARGETS' })
+    if (targets.length > 200) return res.status(400).json({ error: 'BATCH_TOO_LARGE' })
+
+    let queued = 0
+    for (const t of targets) {
+      let handle = null
+      if (t.creatorUserId) {
+        const r = await query(
+          `SELECT handle, platforms FROM creator_profiles WHERE user_id = $1`, [t.creatorUserId],
+        )
+        if (r.rowCount) {
+          const plat = (Array.isArray(r.rows[0].platforms) ? r.rows[0].platforms : [])
+            .find((p) => p.name === b.platform)
+          handle = plat?.handle || r.rows[0].handle
+        }
+      }
+      if (t.importedCreatorId) {
+        const r = await query(`SELECT instagram_handle FROM imported_creators WHERE id = $1`, [t.importedCreatorId])
+        handle = r.rows[0]?.instagram_handle || null
+      }
+      if (!handle) continue
+
+      await query(
+        `INSERT INTO discovery_dm_queue(from_user_id, creator_user_id, imported_creator_id, platform, handle, message, campaign_id, status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, 'ready')`,
+        [req.user.id, t.creatorUserId || null, t.importedCreatorId || null, b.platform, handle, b.message, b.campaignId || null],
+      )
+      queued++
+    }
+    res.json({ ok: true, queued })
+  } catch (err) {
+    if (err.name === 'ZodError') return res.status(400).json({ error: 'VALIDATION' })
+    next(err)
+  }
+})
+
+router.get('/dm/queue', requireAuth, async (req, res, next) => {
+  try {
+    const { status } = req.query
+    const params = req.user.role === 'admin' ? [] : [req.user.id]
+    const where = req.user.role === 'admin' ? [] : [`d.from_user_id = $1`]
+    if (status) { params.push(status); where.push(`d.status = $${params.length}`) }
+    const { rows } = await query(
+      `SELECT d.*, c.title AS campaign_title
+       FROM discovery_dm_queue d
+       LEFT JOIN campaigns c ON c.id = d.campaign_id
+       ${where.length ? 'WHERE ' + where.join(' AND ') : ''}
+       ORDER BY d.created_at DESC LIMIT 200`, params,
+    )
+    res.json({ data: rows })
+  } catch (err) { next(err) }
+})
+
+router.patch('/dm/queue/:id/status', requireAuth, async (req, res, next) => {
+  try {
+    const newStatus = req.body?.status
+    if (!['sent_manual', 'failed', 'cancelled'].includes(newStatus)) return res.status(400).json({ error: 'INVALID_STATUS' })
+    await query(
+      `UPDATE discovery_dm_queue SET status = $1, sent_at = CASE WHEN $1 = 'sent_manual' THEN now() ELSE sent_at END, note = $2 WHERE id = $3`,
+      [newStatus, req.body?.note || null, req.params.id],
+    )
+    res.json({ ok: true })
+  } catch (err) { next(err) }
+})
+
+// ─── 9탭 리포트 생성 ─────────────────────────────────────────────────
 const REPORT_TTL_DAYS = Number(process.env.DISCOVERY_REPORT_TTL_DAYS || 7)
 
 function priceBand(followers, er, category) {
