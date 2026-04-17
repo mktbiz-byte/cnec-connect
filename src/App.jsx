@@ -39,6 +39,7 @@ const Messages = lazy(() => import('@/pages/common/Messages'))
 
 const AdminDashboard = lazy(() => import('@/pages/admin/Dashboard'))
 const AdminDiscovery = lazy(() => import('@/pages/admin/Discovery'))
+const AdminReport = lazy(() => import('@/pages/admin/Report'))
 const AdminGroups = lazy(() => import('@/pages/admin/Groups'))
 const AdminProposals = lazy(() => import('@/pages/admin/Proposals'))
 const AdminUsers = lazy(() => import('@/pages/admin/Users'))
@@ -138,6 +139,7 @@ export default function App() {
         >
           <Route index element={<AdminDashboard />} />
           <Route path="discovery" element={<AdminDiscovery />} />
+          <Route path="discovery/reports/:source/:id" element={<AdminReport />} />
           <Route path="groups" element={<AdminGroups />} />
           <Route path="proposals" element={<AdminProposals />} />
           <Route path="users" element={<AdminUsers />} />

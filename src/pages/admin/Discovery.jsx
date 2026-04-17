@@ -4,7 +4,8 @@ import Card, { Badge } from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import { api } from '@/lib/api'
-import { Search, Mail, Send, FolderPlus, BadgeCheck } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Search, Mail, Send, FolderPlus, BadgeCheck, FileBarChart } from 'lucide-react'
 
 const PLATFORMS = ['', 'instagram', 'youtube', 'tiktok', 'blog']
 const CATEGORIES = ['', '뷰티', '패션', '음식', '여행', '운동', 'IT', '육아', '반려동물', '라이프스타일']
@@ -175,6 +176,10 @@ export default function AdminDiscovery() {
                   {!r.email && !r.phone && <span className="text-[#9CA3AF]">-</span>}
                 </div>
                 <div className="flex gap-1">
+                  <Link to={`/app/admin/discovery/reports/${r.source}/${r.source === 'registered' ? r.id : r.imported_id}`}
+                    className="h-8 px-2.5 rounded-lg bg-[#0B0B1A] text-white text-[11.5px] font-bold inline-flex items-center">
+                    <FileBarChart size={11} className="mr-0.5" />리포트
+                  </Link>
                   <button onClick={() => { setSelected(new Set([k])); setProposalOpen(true) }} className="h-8 px-2.5 rounded-lg bg-[#F3F1FF] text-[#4733D6] text-[11.5px] font-bold">
                     <Send size={11} className="inline mr-0.5" />제안
                   </button>

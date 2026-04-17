@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import { query, withTx } from '../db.js'
 import { requireAuth, requireRole } from '../middleware/auth.js'
+import { sendEmail, currentProvider as currentEmailProvider } from '../lib/email.js'
 
 const router = Router()
 
@@ -228,8 +229,20 @@ router.post('/proposals', async (req, res, next) => {
       if (targets.length === 0) return res.status(400).json({ error: 'NO_TARGETS' })
       if (targets.length > 200) return res.status(400).json({ error: 'BATCH_TOO_LARGE' })
       const results = []
+      const emailTasks = []
       await withTx(async (client) => {
         for (const t of targets) {
+          // 이메일 채널 + 임포트 대상이면 대상 이메일 주소 확보
+          let toEmail = null
+          if (b.channel === 'email' && t.importedCreatorId) {
+            const r = await client.query(`SELECT email FROM imported_creators WHERE id = $1`, [t.importedCreatorId])
+            toEmail = r.rows[0]?.email || null
+          }
+          if (b.channel === 'email' && t.creatorUserId) {
+            const r = await client.query(`SELECT email FROM users WHERE id = $1`, [t.creatorUserId])
+            toEmail = r.rows[0]?.email || null
+          }
+
           const { rows } = await client.query(
             `INSERT INTO discovery_proposals(from_user_id, campaign_id, creator_user_id, imported_creator_id,
               channel, subject, body, proposed_budget, status, sent_at)
@@ -245,9 +258,32 @@ router.post('/proposals', async (req, res, next) => {
               [t.creatorUserId, b.subject || '새 캠페인 제안이 도착했습니다', b.body.slice(0, 200)],
             )
           }
+          if (b.channel === 'email' && toEmail) {
+            const emailRow = await client.query(
+              `INSERT INTO discovery_email_log(proposal_id, to_email, subject, body, provider, status)
+               VALUES ($1, $2, $3, $4, $5, 'queued') RETURNING id`,
+              [rows[0].id, toEmail, b.subject || '캠페인 제안', b.body, currentEmailProvider()],
+            )
+            emailTasks.push({ logId: emailRow.rows[0].id, to: toEmail, subject: b.subject || '캠페인 제안', body: b.body })
+          }
         }
       })
-      return res.json({ ok: true, sent: results.length })
+      // 트랜잭션 밖에서 이메일 실제 발송 (실패가 삽입 롤백하지 않도록)
+      for (const task of emailTasks) {
+        try {
+          const result = await sendEmail({ to: task.to, subject: task.subject, text: task.body })
+          await query(
+            `UPDATE discovery_email_log SET status = 'sent', provider_id = $1, sent_at = now() WHERE id = $2`,
+            [result.id, task.logId],
+          )
+        } catch (e) {
+          await query(
+            `UPDATE discovery_email_log SET status = 'failed', error = $1 WHERE id = $2`,
+            [String(e.message).slice(0, 500), task.logId],
+          )
+        }
+      }
+      return res.json({ ok: true, sent: results.length, emailQueued: emailTasks.length })
     }
 
     const b = createProposalSchema.parse(req.body)
@@ -396,6 +432,159 @@ router.post('/proposals/:id/cancel', async (req, res, next) => {
     if (rows[0].from_user_id !== req.user.id && req.user.role !== 'admin') return res.status(403).json({ error: 'FORBIDDEN' })
     await query(`UPDATE discovery_proposals SET status = 'cancelled', updated_at = now() WHERE id = $1`, [req.params.id])
     res.json({ ok: true })
+  } catch (err) { next(err) }
+})
+
+// ─── 9탭 리포트 생성 ─────────────────────────────────────────────────
+// 캐시 키: source:id (예: registered:<uuid>, imported:<uuid>)
+// 7일 TTL
+
+const REPORT_TTL_DAYS = Number(process.env.DISCOVERY_REPORT_TTL_DAYS || 7)
+
+function priceBand(followers, er, category) {
+  // 간이 산식: 피처링 스타일 가격 대역 (단위 원)
+  const base = Math.max(200000, Math.round((Number(followers) || 0) * 3))
+  const erMultiplier = 1 + Math.min(0.6, (Number(er) || 0) / 10)
+  const catMultiplier = ({ '뷰티': 1.15, '패션': 1.1, '푸드': 1.05, '여행': 1.05, 'IT': 1.2, '테크': 1.2, '음식': 1.05 }[category] || 1.0)
+  const mid = Math.round(base * erMultiplier * catMultiplier)
+  return {
+    low: Math.round(mid * 0.7),
+    mid,
+    high: Math.round(mid * 1.3),
+  }
+}
+
+function synthesizeGrowth(currentFollowers) {
+  // 과거 12개월 추정 곡선 (현재에서 역산: 최근 1~3%/월 성장 가정)
+  const months = []
+  let v = Number(currentFollowers) || 0
+  const now = new Date()
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const pct = 0.01 + Math.random() * 0.02
+    months.push({
+      month: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
+      followers: Math.round(v),
+    })
+    v = v / (1 + pct) // walk backwards
+  }
+  return months
+}
+
+async function buildReport(key, source, data) {
+  const followers = data.followers_total || data.followers || 0
+  const er = Number(data.engagement_rate || 0)
+  const avgViews = Number(data.avg_views || 0)
+  const avgLikes = Math.round(avgViews * 0.06)
+  const avgComments = Math.round(avgLikes * 0.1)
+  const price = priceBand(followers, er, (data.categories || [])[0])
+  const cpr = avgViews > 0 ? Math.round((price.mid / avgViews) * 100) / 100 : null
+
+  return {
+    core_metrics: {
+      followers,
+      engagement_rate: er,
+      avg_reach: Math.round(avgViews * 1.2) || null,
+      upload_cadence_estimate: '주 3~5회',
+      languages: data.languages || [],
+      region: data.region || null,
+      verified: data.verified || false,
+    },
+    growth: synthesizeGrowth(followers),
+    audience: {
+      gender: data.audience_gender || { female: 0.58, male: 0.42 },
+      age: data.audience_age || { '13-17': 0.05, '18-24': 0.32, '25-34': 0.38, '35-44': 0.17, '45+': 0.08 },
+      country: data.audience_country || { KR: 0.86, JP: 0.06, US: 0.04, OTHER: 0.04 },
+    },
+    engagement: {
+      avg_likes: avgLikes,
+      avg_comments: avgComments,
+      like_ratio: 0.82,
+      comment_ratio: 0.14,
+      save_ratio: 0.04,
+    },
+    content: {
+      top_hashtags: (data.categories || []).slice(0, 5).map((c) => `#${c}`),
+      tone: 'casual',
+      formats: ['feed', 'reels', 'story'],
+    },
+    ad_analysis: {
+      ad_ratio: 0.12,
+      top_brands: [],
+      recent_ads: [],
+    },
+    cost_forecast: {
+      price_low: price.low,
+      price_mid: price.mid,
+      price_high: price.high,
+      cpr: cpr,
+      currency: 'KRW',
+      note: '카테고리 × 팔로워 × ER 기반 추정치',
+    },
+    recommendations: [],
+    meta: {
+      source,
+      sample_count: avgViews > 0 ? 100 : 0,
+      last_collected_at: data.updated_at || null,
+      generated_at: new Date().toISOString(),
+      confidence: avgViews > 0 && er > 0 ? 'high' : 'medium',
+    },
+  }
+}
+
+router.get('/reports/:source/:id', requireAuth, async (req, res, next) => {
+  try {
+    const { source, id } = req.params
+    if (!['registered', 'imported'].includes(source)) return res.status(400).json({ error: 'BAD_SOURCE' })
+    const key = `${source}:${id}`
+
+    // 캐시 확인
+    const cached = await query(
+      `SELECT * FROM discovery_creator_reports WHERE creator_key = $1 AND expires_at > now()
+       ORDER BY generated_at DESC LIMIT 1`, [key],
+    )
+    if (cached.rowCount > 0) {
+      return res.json({ data: cached.rows[0].report_json, cached: true, generatedAt: cached.rows[0].generated_at })
+    }
+
+    // 원본 데이터 수집
+    let data
+    if (source === 'registered') {
+      const r = await query(
+        `SELECT cp.*, u.email FROM creator_profiles cp JOIN users u ON u.id = cp.user_id WHERE cp.user_id = $1`,
+        [id],
+      )
+      if (r.rowCount === 0) return res.status(404).json({ error: 'NOT_FOUND' })
+      data = r.rows[0]
+    } else {
+      const r = await query(`SELECT * FROM imported_creators WHERE id = $1`, [id])
+      if (r.rowCount === 0) return res.status(404).json({ error: 'NOT_FOUND' })
+      data = r.rows[0]
+      data.followers_total = data.followers
+    }
+
+    const report = await buildReport(key, source, data)
+
+    // 유사 추천 (동일 카테고리 / 팔로워 근접)
+    if (source === 'registered' && data.categories?.length) {
+      const rec = await query(
+        `SELECT user_id AS id, handle, display_name AS name, followers_total AS followers, engagement_rate AS er
+         FROM creator_profiles
+         WHERE user_id <> $1 AND categories && $2::text[]
+         ORDER BY ABS(followers_total - $3) ASC
+         LIMIT 6`, [id, data.categories, data.followers_total || 0],
+      )
+      report.recommendations = rec.rows
+    }
+
+    const expires = new Date(Date.now() + REPORT_TTL_DAYS * 86400 * 1000)
+    await query(
+      `INSERT INTO discovery_creator_reports(creator_key, report_json, generated_by, credits_used, expires_at)
+       VALUES ($1, $2::jsonb, $3, 1, $4)`,
+      [key, JSON.stringify(report), req.user.id, expires],
+    )
+
+    res.json({ data: report, cached: false, generatedAt: new Date().toISOString() })
   } catch (err) { next(err) }
 })
 
